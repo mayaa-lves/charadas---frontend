@@ -1,0 +1,124 @@
+let palavraSecreta = ''; 
+let letrasErradas = [];
+let letrasCorretas = [];
+let vidas = 5;
+
+const respostaContainer = document.getElementById('palavra-container');
+const btnAdivinhar = document.getElementById('btn-adivinhar');
+const cardJogo = document.querySelector('.card-shadow'); 
+
+// --- EFEITOS VISUAIS ---
+function efeitoErro() {
+    cardJogo.classList.add('animate-shake');
+    setTimeout(() => cardJogo.classList.remove('animate-shake'), 500);
+}
+
+const style = document.createElement('style');
+style.innerHTML = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+    .animate-shake { animation: shake 0.2s ease-in-out 0s 2; border-color: #ef4444 !important; }
+`;
+document.head.appendChild(style);
+
+
+
+// --- LÓGICA DO JOGO ---
+async function buscarCharadas() {
+    try {
+        const baseUrl = 'https://api-de-charadass.vercel.app';
+        const endpoint = "/charadas/aleatoria";
+        const respostaApi = await fetch(baseUrl + endpoint);
+        const dados = await respostaApi.json();
+        
+        palavraSecreta = dados.resposta.toUpperCase();
+        document.getElementById('pergunta-desafio').textContent = dados.pergunta;
+
+        desenharPalavra();
+        atualizarVidas();
+
+    } catch (error) {
+        document.getElementById('pergunta-desafio').textContent = "Erro ao conectar com o servidor";
+        console.error("Erro na busca:", error);
+    }
+}
+
+function desenharPalavra() {
+    let exibicao = "";
+    for (let letra of palavraSecreta) {
+        if (letra === " ") {
+            exibicao += "  "; 
+        } else if (letrasCorretas.includes(letra)) {
+            exibicao += letra + " ";
+        } else {
+            exibicao += "_ ";
+        }
+    }
+    respostaContainer.textContent = exibicao;
+    return exibicao;
+}
+
+window.addEventListener('keydown', (evento) => {
+    const letra = evento.key.toUpperCase();
+    
+    // Ignora se não for letra de A-Z ou se já foi digitada
+    if (!/^[A-ZÀ-Ÿ]$/.test(letra) || evento.key.length > 1) return;
+    if (letrasCorretas.includes(letra) || letrasErradas.includes(letra)) return;
+
+    if (palavraSecreta.includes(letra)) {
+        letrasCorretas.push(letra);
+    } else {
+        letrasErradas.push(letra);
+        vidas -= 1;
+        efeitoErro(); // Ativa o tremor visual
+    }
+
+    const textoAtual = desenharPalavra();
+    atualizarVidas();
+    verificarFimDeJogo(textoAtual);
+});
+
+function atualizarVidas() {
+    const container = document.getElementById('vidas-container');
+    container.textContent = "❤️".repeat(vidas) + "🖤".repeat(5 - vidas); 
+}
+
+function verificarFimDeJogo(textoNaTela) {
+    if (vidas <= 0) {
+        setTimeout(() => {
+            alert("GAME OVER! 💀 A resposta era: " + palavraSecreta);
+            location.reload();
+        }, 100);
+    } else if (!textoNaTela.includes("_") && palavraSecreta !== "") {
+        setTimeout(() => {
+            alert("PARABÉNS! 🎉 Você é um gênio!");
+            location.reload();
+        }, 100);
+    }
+}
+
+btnAdivinhar.addEventListener('click', () => {
+    const chute = prompt("Qual é a sua resposta?").toUpperCase();
+    if (!chute) return;
+
+    if (chute === palavraSecreta) {
+        alert("NA MOSCA! 🎯");
+        location.reload();
+    } else {
+        alert("ERROU! Perdeu 2 vidas! ❌");
+        vidas -= 2;
+        if (vidas < 0) vidas = 0;
+        efeitoErro();
+        atualizarVidas();
+        verificarFimDeJogo(desenharPalavra());
+    }
+});
+
+// Inicialização
+iniciarJogo();
+function iniciarJogo() {
+    buscarCharadas();
+}
