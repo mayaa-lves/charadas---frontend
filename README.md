@@ -40,4 +40,4 @@ Durante o desenvolvimento, foquei em resolver problemas complexos de programaç�
 
 1. Clone este repositório:
    ```bash
-   git clone [https://github.com/seu-usuario/charada-hangman.git](https://github.com/seu-usuario/charada-hangman.git)
+   git clone [https://github.com/mayaa-lves/charadas---frontend.git]
