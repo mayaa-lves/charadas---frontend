@@ -14,10 +14,8 @@ async function buscarCharadas() {
     try{
         const baseUrl = 'https://api-de-charadass.vercel.app'
         const endpoint = "/charadas/aleatoria"
-        // console.log(baseUrl+endpoint)
 
         const respostaApi = await fetch(baseUrl+endpoint)
-        // console.log(respostaApi)
 
         const dados = await respostaApi.json()
         console.log(dados)
@@ -27,17 +25,17 @@ async function buscarCharadas() {
 
     } catch(error){
         campoPergunta.textContent = "Error ao conectar com o servidor";
-        console.error("Erro na busca:", erro);
+        console.error("Erro na busca:", error);
     }
 }
 
 buscarCharadas()
 
 btnNova.addEventListener('click', () => {
-    // 1. Remove a rotação para garantir que o card volte para a frente
+    // remove a rotação para garantir que o card volte para a frente
     cardInner.classList.remove('[transform:rotateY(180deg)]');
     
-    // 2. Chama a função para buscar a nova charada
+    // chama a função para buscar a nova charada
     buscarCharadas();
 });
 

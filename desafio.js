@@ -25,7 +25,6 @@ style.innerHTML = `
 document.head.appendChild(style);
 
 
-
 // --- LÓGICA DO JOGO ---
 async function buscarCharadas() {
     try {
@@ -33,7 +32,7 @@ async function buscarCharadas() {
         const endpoint = "/charadas/aleatoria";
         const respostaApi = await fetch(baseUrl + endpoint);
         const dados = await respostaApi.json();
-        
+        console.log(dados)
         palavraSecreta = dados.resposta.toUpperCase();
         document.getElementById('pergunta-desafio').textContent = dados.pergunta;
 
@@ -46,6 +45,8 @@ async function buscarCharadas() {
     }
 }
 
+
+// função que senha a palavra na tela (tanto no inicio - oculta. como ao decorrer das letras digitadas - ' _ M _ R') 
 function desenharPalavra() {
     let exibicao = "";
     for (let letra of palavraSecreta) {
@@ -61,13 +62,15 @@ function desenharPalavra() {
     return exibicao;
 }
 
+// função que analise se a letra digitada está correta, quando a pessoa digita algo ('keydwon')
 window.addEventListener('keydown', (evento) => {
     const letra = evento.key.toUpperCase();
     
-    // Ignora se não for letra de A-Z ou se já foi digitada
+    // ignora se não for letra de A-Z (ignora se for numeros) ou se já foi digitada
     if (!/^[A-ZÀ-Ÿ]$/.test(letra) || evento.key.length > 1) return;
     if (letrasCorretas.includes(letra) || letrasErradas.includes(letra)) return;
 
+    // confere se a letra digitada esta correta (contem na palavra)
     if (palavraSecreta.includes(letra)) {
         letrasCorretas.push(letra);
     } else {
@@ -81,18 +84,20 @@ window.addEventListener('keydown', (evento) => {
     verificarFimDeJogo(textoAtual);
 });
 
+// função que atualiza as vidas
 function atualizarVidas() {
     const container = document.getElementById('vidas-container');
     container.textContent = "❤️".repeat(vidas) + "🖤".repeat(5 - vidas); 
 }
 
+// função que identifica o fim do jogo
 function verificarFimDeJogo(textoNaTela) {
     if (vidas <= 0) {
         setTimeout(() => {
             alert("GAME OVER! 💀 A resposta era: " + palavraSecreta);
             location.reload();
         }, 100);
-    } else if (!textoNaTela.includes("_") && palavraSecreta !== "") {
+    } else if (!textoNaTela.includes("_") && palavraSecreta !== "") { // se n tiver o tracinho (na teoria completa) e se a palavra seceta n estiver vazia
         setTimeout(() => {
             alert("PARABÉNS! 🎉 Você é um gênio!");
             location.reload();
@@ -100,6 +105,7 @@ function verificarFimDeJogo(textoNaTela) {
     }
 }
 
+// função do botão adivinhar
 btnAdivinhar.addEventListener('click', () => {
     const chute = prompt("Qual é a sua resposta?").toUpperCase();
     if (!chute) return;
